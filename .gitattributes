@@ -1,0 +1,15 @@
+# 統一用 LF 存進 repo，Windows checkout 時由 git 自行處理
+* text=auto eol=lf
+
+# Windows 專用的批次檔必須是 CRLF
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# shell 腳本必須是 LF，否則在 Linux / CI 上會噴 bad interpreter
+*.sh  text eol=lf
+mvnw  text eol=lf
+
+# 二進位檔不要做換行轉換
+*.jar binary
+*.png binary
+*.jpg binary
