@@ -2,10 +2,6 @@ package com.willie.ratelimit.order.adapter.in.web.ratelimit;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.Clock;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -65,7 +61,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     /**
      * 429 不會經過 GlobalExceptionHandler —— filter 在 DispatcherServlet 之前，
-     * @RestControllerAdvice 管不到，所以回應要自己寫。
+     * @RestControllerAdvice 管不到，所以回應要自己寫
      */
     private void rejectWithTooManyRequests(HttpServletResponse response,long retryAfter) throws IOException {
         response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());

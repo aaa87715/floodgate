@@ -37,7 +37,6 @@ public class FixedWindowRateLimiter implements RateLimiter {
         this.properties = properties;
     }
 
-    /** 設定與實際載入的實作不一致時，這一行會立刻讓你看見。 */
     @PostConstruct
     void logActiveAlgorithm() {
         FixedWindow fw = properties.fixedWindow();
