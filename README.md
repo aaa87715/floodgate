@@ -1,7 +1,11 @@
-# rate-limit — 限流與微服務練習專案
+# floodgate
 
-目前狀態：**只有骨架**。pom、目錄、設定檔都配好且驗證過，Java 程式碼全部由你自己寫。
-一步一步的學習路線看 [LEARNING-PLAN.md](LEARNING-PLAN.md)。
+Spring Cloud 微服務棧的流量控制 —— 從單機記憶體限流一路做到 Redis 分散式限流，
+每一層都先寫出問題、再用測試把問題釘下來，然後才換掉它。
+
+技術棧：Java 21 · Spring Boot 4.0.8 · Spring Cloud 2025.1.3 · Postgres · Redis
+
+演進路線與每個階段的取捨紀錄：[LEARNING-PLAN.md](LEARNING-PLAN.md)
 
 ---
 
