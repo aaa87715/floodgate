@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.willie.ratelimit.order.adapter.in.web.ErrorResponse;
+import com.willie.ratelimit.order.adapter.in.web.ratelimit.RateLimiter.Decision;
 
 import tools.jackson.databind.ObjectMapper;
 
@@ -22,31 +23,22 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/**
- * Fixed window 限流：把時間切成固定長度的格子，每格一個計數器，滿了就擋，進下一格歸零。
- */
+
 @Component
-public class FixedWindowRateLimitFilter extends OncePerRequestFilter {
+public class RateLimitFilter extends OncePerRequestFilter {
 
     private static final String PROTECTED_PREFIX = "/api/";
 
-
-    private record Window(long startMillis, int count ) {
-
-    }
-   
-
-    private final Map<String, AtomicReference<Window>> windows = new ConcurrentHashMap<>();
+    private final RateLimiter rateLimit;
     private final RateLimitProperties properties;
     private final ObjectMapper objectMapper;
-    private final Clock clock;
 
-    public FixedWindowRateLimitFilter(RateLimitProperties properties,
-                                    ObjectMapper objectMapper,
-                                    Clock clock) {
+    public RateLimitFilter(RateLimiter rateLimit,
+                                      RateLimitProperties properties,
+                                      ObjectMapper objectMapper) {
+        this.rateLimit = rateLimit;
         this.properties = properties;
         this.objectMapper = objectMapper;
-        this.clock = clock;
     }
 
     @Override
@@ -59,28 +51,13 @@ public class FixedWindowRateLimitFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain chain) throws ServletException, IOException {
+        Decision decision = rateLimit.tryAcquire(clientKey(request));
 
-        String clientKey = clientKey(request);
-        long now = clock.millis();
+        response.setHeader("X-RateLimit-Limit", String.valueOf(decision.limit()));
+        response.setHeader("X-RateLimit-Remaining", String.valueOf(decision.remaining()));
 
-        long windowMillis = properties.window().toMillis();
-        int limit = properties.limit();
-        var ref = windows.computeIfAbsent(clientKey , k -> new AtomicReference<>(new Window(now, 0)));
-        Window  currentWindow = ref.updateAndGet(window -> {
-            if( now - window.startMillis() >= windowMillis) {
-                return new Window(now , 1);
-            }
-            return new Window(window.startMillis(), window.count() + 1);
-        });
-
-        boolean allowed = currentWindow.count() <= limit;
-        int remaining = allowed ? limit -  currentWindow.count() : 0;
-        response.setHeader("X-RateLimit-Limit", String.valueOf(limit));
-        response.setHeader("X-RateLimit-Remaining", String.valueOf(remaining));
-
-        if (!allowed) {
-            long windowEnd =  currentWindow.startMillis() + windowMillis;
-            rejectWithTooManyRequests(response, Math.max(1, (windowEnd - now) / 1000));
+        if (!decision.allowed()) {
+            rejectWithTooManyRequests(response, decision.retryAfter().toMillis());
             return;
         }
         chain.doFilter(request, response);
