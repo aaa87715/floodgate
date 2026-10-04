@@ -1,11 +1,13 @@
 # floodgate
 
+[![CI](https://github.com/aaa87715/floodgate/actions/workflows/ci.yml/badge.svg)](https://github.com/aaa87715/floodgate/actions/workflows/ci.yml)
+
 Spring Cloud 微服務棧的流量控制 —— 從單機記憶體限流一路做到 Redis 分散式限流，
 每一層都先寫出問題、再用測試把問題釘下來，然後才換掉它。
 
 技術棧：Java 21 · Spring Boot 4.0.8 · Spring Cloud 2025.1.3 · Postgres · Redis
 
-演進路線與每個階段的取捨紀錄：[LEARNING-PLAN.md](LEARNING-PLAN.md)
+演進路線：[LEARNING-PLAN.md](LEARNING-PLAN.md) ｜ 架構決策紀錄：[docs/adr](docs/adr)
 
 ---
 

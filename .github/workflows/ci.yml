@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# 同一條 branch 連續推送時，取消還在跑的舊 job，不要排隊浪費額度
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Build and test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: maven          # 快取 ~/.m2，第二次之後快很多
+
+      # 用 test 而不是 verify/package：discovery-server 與 api-gateway
+      # 還沒有 @SpringBootApplication 主類別，spring-boot:repackage 會失敗。
+      # 等那兩個模組有主類別之後再改成 verify。
+      - name: Run tests
+        run: ./mvnw -B --no-transfer-progress clean test
+
+      # 測試失敗時把報告存下來，才查得到是哪一條斷言掛掉
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: '**/target/surefire-reports/'
+          retention-days: 7
+          if-no-files-found: ignore
