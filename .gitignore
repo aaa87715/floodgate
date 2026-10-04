@@ -1,0 +1,24 @@
+target/
+*.class
+*.jar
+*.log
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+bin/
+
+# VS Code (keep shared configs, ignore local state)
+.vscode/*.local.json
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Working notes
+PROGRESS.md

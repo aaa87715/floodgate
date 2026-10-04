@@ -1,0 +1,55 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "maven: test-compile (驗證依賴)",
+      "type": "shell",
+      "command": "mvn -B clean test-compile",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "maven: test",
+      "type": "shell",
+      "command": "mvn -B clean test",
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "run: order-service",
+      "type": "shell",
+      "command": "mvn -B -pl order-service spring-boot:run",
+      "problemMatcher": []
+    },
+    {
+      "label": "run: order-service (:8091)",
+      "type": "shell",
+      "command": "mvn -B -pl order-service spring-boot:run -Dspring-boot.run.arguments=--server.port=8091",
+      "problemMatcher": []
+    },
+    {
+      "label": "run: api-gateway",
+      "type": "shell",
+      "command": "mvn -B -pl api-gateway spring-boot:run",
+      "problemMatcher": []
+    },
+    {
+      "label": "run: discovery-server",
+      "type": "shell",
+      "command": "mvn -B -pl discovery-server spring-boot:run",
+      "problemMatcher": []
+    },
+    {
+      "label": "infra: docker compose up",
+      "type": "shell",
+      "command": "docker compose up -d",
+      "problemMatcher": []
+    },
+    {
+      "label": "infra: docker compose down",
+      "type": "shell",
+      "command": "docker compose down",
+      "problemMatcher": []
+    }
+  ]
+}

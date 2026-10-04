@@ -1,0 +1,56 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "OrderServiceApplication",
+      "request": "launch",
+      "mainClass": "com.willie.OrderServiceApplication",
+      "projectName": "order-service"
+    },
+    {
+      "type": "java",
+      "name": "order-service :8081",
+      "request": "launch",
+      "mainClass": "com.willie.ratelimit.order.OrderServiceApplication",
+      "projectName": "order-service",
+      "console": "internalConsole"
+    },
+    {
+      "type": "java",
+      "name": "order-service :8091 (第二個實例, Stage 4)",
+      "request": "launch",
+      "mainClass": "com.willie.ratelimit.order.OrderServiceApplication",
+      "projectName": "order-service",
+      "args": "--server.port=8091",
+      "console": "internalConsole"
+    },
+    {
+      "type": "java",
+      "name": "api-gateway :8080",
+      "request": "launch",
+      "mainClass": "com.willie.ratelimit.gateway.ApiGatewayApplication",
+      "projectName": "api-gateway",
+      "console": "internalConsole"
+    },
+    {
+      "type": "java",
+      "name": "discovery-server :8761",
+      "request": "launch",
+      "mainClass": "com.willie.ratelimit.discovery.DiscoveryServerApplication",
+      "projectName": "discovery-server",
+      "console": "internalConsole"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "全部啟動 (discovery + gateway + order)",
+      "configurations": [
+        "discovery-server :8761",
+        "api-gateway :8080",
+        "order-service :8081"
+      ],
+      "stopAll": true
+    }
+  ]
+}

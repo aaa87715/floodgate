@@ -1,0 +1,56 @@
+{
+  // 專案設定變動時自動重新同步 classpath，不用手動 Reload Projects
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.compile.nullAnalysis.mode": "automatic",
+
+  // 存檔時自動整理 import（移除沒用到的、補上缺的）
+  "java.saveActions.organizeImports": true,
+
+  // import 分組順序；預設沒有 jakarta，Spring Boot 3+ 大量用到所以補進去
+  // "#" 代表 static import
+  "java.completion.importOrder": ["#", "java", "javax", "jakarta", "org", "com", ""],
+
+  // 不要自動變成 import x.y.*（保持逐一 import，看得出來東西從哪來）
+  "java.sources.organizeImports.starThreshold": 99,
+  "java.sources.organizeImports.staticStarThreshold": 99,
+
+  // 新檔案不要自動加檔頭註解與 javadoc 樣板
+  "java.templates.fileHeader": [],
+  "java.templates.typeComment": [],
+
+  "files.encoding": "utf8",
+  "files.exclude": {
+    "**/target": true
+  },
+  "maven.executable.preferMavenWrapper": true,
+  "java.completion.favoriteStaticMembers": [
+    "org.junit.jupiter.api.Assertions.*",
+    "org.junit.jupiter.api.Assumptions.*",
+    "org.mockito.Mockito.*",
+    "org.mockito.ArgumentMatchers.*",
+    "org.mockito.Answers.*",
+    "org.mockito.BDDMockito.*",
+    "org.assertj.core.api.Assertions.*",
+    "org.hamcrest.Matchers.*",
+    "org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*",
+    "org.springframework.test.web.servlet.result.MockMvcResultMatchers.*",
+    "org.springframework.test.web.servlet.result.MockMvcResultHandlers.*"
+  ],
+  "cSpell.words": [
+    "actuator",
+    "bucket4j",
+    "circuitbreakers",
+    "Dspring",
+    "eureka",
+    "Intervally",
+    "jakarta",
+    "Millis",
+    "ratelimit",
+    "resilience4j",
+    "springframework",
+    "testcontainers",
+    "webflux"
+  ],
+  "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx4G -Xms100m -Xlog:disable",
+  "java.dependency.packagePresentation": "flat"
+}
