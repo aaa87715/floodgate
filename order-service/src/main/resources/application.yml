@@ -53,7 +53,17 @@ management:
 ratelimit:
   orders:
     enabled: true
-    window: 1m
-    limit: 20
-
+    algorithm: token-bucket      # fixed-window | token-bucket
+    fixed-window:
+      limit: 20
+      window: 1m
+    token-bucket:
+      capacity: 20
+      refill-tokens: 20
+      refill-period: 1m
+      
+logging:
+  level:
+    root: INFO
+    com.willie.ratelimit.order.adapter.in.web.ratelimit: DEBUG
   

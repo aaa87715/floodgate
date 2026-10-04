@@ -13,9 +13,15 @@ spring:
 # 限流測試自己用 @TestPropertySource 開啟並指定小上限
 ratelimit:
   orders:
-    enabled: false
-    limit: 3
-    window: 1m
+    enabled: false          # 其他測試不該被限流干擾；限流測試自己用 @TestPropertySource 打開
+    algorithm: token-bucket
+    fixed-window:
+      limit: 3
+      window: 1m
+    token-bucket:
+      capacity: 3
+      refill-tokens: 3
+      refill-period: 1m
 
 eureka:
   client:

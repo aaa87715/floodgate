@@ -23,10 +23,11 @@ import org.springframework.test.web.servlet.ResultActions;
 @ActiveProfiles("test")
 @TestPropertySource(properties = {
         "ratelimit.orders.enabled=true",
-        "ratelimit.orders.limit=5",
-        "ratelimit.orders.window=1m"
+        "ratelimit.orders.algorithm=fixed-window",
+        "ratelimit.orders.fixed-window.limit=5",
+        "ratelimit.orders.fixed-window.window=1m"
 })
-public class FixedWindowRateLimitFilterTest {
+public class FixedWindowRateLimiterTest {
 
     private static final long T0 = 1_700_000_000_000L;
 
