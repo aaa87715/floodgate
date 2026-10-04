@@ -1,0 +1,6 @@
+# 測試只驗 context 起得來，不連 Eureka
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false

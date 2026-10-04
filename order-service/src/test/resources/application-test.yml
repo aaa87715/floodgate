@@ -1,0 +1,24 @@
+# 測試用 H2，不連 Postgres / Eureka；限流上限調小，測試才跑得快
+spring:
+  datasource:
+    url: jdbc:h2:mem:orders;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+# 預設關閉：既有的 OrderControllerTest 不該被限流干擾
+# 限流測試自己用 @TestPropertySource 開啟並指定小上限
+ratelimit:
+  orders:
+    enabled: false
+    limit: 3
+    window: 1m
+
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
