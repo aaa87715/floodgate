@@ -1,0 +1,28 @@
+# 本機開發用。帳密與 application.yml 的預設值一致，
+# 正式環境請以 POSTGRES_USER / POSTGRES_PASSWORD 等環境變數覆寫。
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: ratelimit-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ratelimit}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ratelimit}
+      POSTGRES_DB: ${POSTGRES_DB:-ratelimit}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ratelimit}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: ratelimit-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
