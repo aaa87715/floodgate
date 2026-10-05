@@ -22,6 +22,11 @@ services:
     container_name: ratelimit-redis
     ports:
       - "6379:6379"
+    volumes:
+      # 把 Lua 腳本掛進容器，開發時可以直接
+      #   docker compose exec -T redis redis-cli --eval /scripts/token_bucket.lua <key> , <args...>
+      # 不用啟動整個 app 就能迭代
+      - ./order-service/src/main/resources/scripts:/scripts:ro
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s

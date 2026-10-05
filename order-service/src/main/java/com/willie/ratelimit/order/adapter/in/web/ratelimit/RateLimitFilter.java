@@ -53,7 +53,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
         response.setHeader("X-RateLimit-Remaining", String.valueOf(decision.remaining()));
 
         if (!decision.allowed()) {
-            rejectWithTooManyRequests(response, decision.retryAfter().toMillis());
+            // Duration 讓呼叫端決定單位：不管實作是用 ofMillis 還是 ofSeconds 建的都會正確換算。
+            // toSeconds() 會無條件捨去，500ms 變 0 等於叫 client 立刻重試，所以夾在 1 以上。
+            rejectWithTooManyRequests(response, Math.max(1, decision.retryAfter().toSeconds()));
             return;
         }
         chain.doFilter(request, response);
@@ -63,10 +65,11 @@ public class RateLimitFilter extends OncePerRequestFilter {
      * 429 不會經過 GlobalExceptionHandler —— filter 在 DispatcherServlet 之前，
      * @RestControllerAdvice 管不到，所以回應要自己寫
      */
-    private void rejectWithTooManyRequests(HttpServletResponse response,long retryAfter) throws IOException {
+    private void rejectWithTooManyRequests(HttpServletResponse response, long retryAfterSeconds)
+            throws IOException {
         response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setHeader(HttpHeaders.RETRY_AFTER, String.valueOf(retryAfter));
+        response.setHeader(HttpHeaders.RETRY_AFTER, String.valueOf(retryAfterSeconds));
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         ErrorResponse body = new ErrorResponse("too_many_requests", "Too many requests. Please try again later.");
         response.getWriter().write(objectMapper.writeValueAsString(body));
