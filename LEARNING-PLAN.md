@@ -36,7 +36,7 @@ services:
       POSTGRES_DB: ratelimit
       POSTGRES_USER: ratelimit
       POSTGRES_PASSWORD: ratelimit
-    ports: ["5432:5432"]
+    ports: ["5433:5432"]   # 本機已裝 Postgres 的話 5432 會被佔走
   redis:
     image: redis:7-alpine
     ports: ["6379:6379"]
