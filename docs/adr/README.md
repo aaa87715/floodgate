@@ -45,3 +45,4 @@
 | [004](004-outbound-ports-depend-only-inward.md) | 出站 port 只能依賴原生型別與 domain | 已採納 |
 | [005](005-where-rate-limiting-lives.md) | 限流放在哪一層 | 已採納 |
 | [006](006-rate-limit-algorithm-behind-an-interface.md) | 限流演算法抽成介面，由設定選擇實作 | 已採納 |
+| [007](007-rate-limit-state-must-live-outside-the-instance.md) | 限流狀態必須放在實例之外（Redis） | 已採納 |

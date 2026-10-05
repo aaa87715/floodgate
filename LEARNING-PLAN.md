@@ -7,9 +7,9 @@
 
 - [ ] Stage 0　環境與骨架
 - [x] Stage 1　order-service 單體跑起來　（20 支測試全綠）
-- [ ] Stage 2　手寫 fixed window 限流（故意寫出有缺陷的版本）
-- [ ] Stage 3　換成 token bucket（Bucket4j）
-- [ ] Stage 4　開第二個實例 → 親眼看到限流失效
+- [x] Stage 2　手寫 fixed window 限流（故意寫出有缺陷的版本）
+- [x] Stage 3　換成 token bucket（Bucket4j）
+- [x] Stage 4　開第二個實例 → 親眼看到限流失效　（配額 20，實測通過 40）
 - [ ] Stage 5　Redis + Lua 分散式限流
 - [ ] Stage 6　限流上移到 api-gateway
 - [ ] Stage 7　Eureka 服務發現
@@ -172,13 +172,41 @@ groupId 是 `com.bucket4j`，Java 17+ 用 `bucket4j_jdk17-core`。
 這是整條路線最重要的一步。
 
 ### 要做的
-```bash
-mvn -pl order-service spring-boot:run -Dspring-boot.run.arguments=--server.port=8091
-```
-兩個實例同時跑，輪流往 8081 和 8091 打。
+```powershell
+# 終端 A
+mvn -pl order-service spring-boot:run
 
-### 驗收
-輪流打時，總通過量 = **單一實例上限 × 2**。把這個數字記下來，Stage 5 結束後要回來對照。
+# 終端 B（PowerShell 會把 -Dspring-boot.run.arguments=... 從第一個點切開，
+#          所以改用環境變數比較省事）
+$env:SERVER_PORT = 8091
+mvn -pl order-service spring-boot:run
+```
+
+```powershell
+# 需要 PowerShell 7+（-SkipHttpErrorCheck 在 5.1 不存在）
+$ok = 0; $blocked = 0
+1..60 | ForEach-Object {
+    $port = if ($_ % 2 -eq 0) { 8081 } else { 8091 }
+    $r = Invoke-WebRequest -Uri "http://localhost:$port/api/orders" `
+         -Headers @{ "X-Forwarded-For" = "203.0.113.99" } -SkipHttpErrorCheck
+    if ($r.StatusCode -eq 200) { $ok++ } else { $blocked++ }
+}
+"通過 $ok 次，擋掉 $blocked 次"
+```
+
+### 實測結果　★ Stage 5 的對照基準
+
+設定 `capacity = 20`，60 個請求輪流打兩個實例：
+
+```
+通過 40 次，擋掉 20 次
+```
+
+每個實例各收到 30 個請求，各自放行自己那 20 個額度。
+**限流上限 = 設定值 × 實例數**，而且方向最糟 —— 實例越多限制越鬆，
+k8s 高負載自動擴容時，保護反而最弱。
+
+Stage 5 接上 Redis 之後，同樣的指令要回到 **通過 20 次**。
 
 ### 思考題（寫下你的答案，之後驗證）
 - 如果有 10 個實例呢？你設定的「每分鐘 20 次」實際變成多少？
