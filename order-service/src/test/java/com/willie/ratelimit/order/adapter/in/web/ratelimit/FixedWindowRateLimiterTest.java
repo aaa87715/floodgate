@@ -1,5 +1,6 @@
 package com.willie.ratelimit.order.adapter.in.web.ratelimit;
 
+import static org.hamcrest.Matchers.matchesRegex;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -63,7 +64,8 @@ void sixthRequestWithinWindowIsRejected() throws Exception {
     }
     performIp("198.51.100.9")
             .andExpect(status().isTooManyRequests())
-            .andExpect(header().exists("Retry-After"))
+            // 1~2 位數的正整數：單位誤用毫秒的話會是 4 位數以上（例如 3000、2118）
+            .andExpect(header().string("Retry-After", matchesRegex("^[1-9][0-9]?$")))
             .andExpect(header().string("X-RateLimit-Remaining", "0"))
             .andExpect(jsonPath("$.errorCode").value("too_many_requests"));
 }

@@ -10,7 +10,7 @@
 - [x] Stage 2　手寫 fixed window 限流（故意寫出有缺陷的版本）
 - [x] Stage 3　換成 token bucket（Bucket4j）
 - [x] Stage 4　開第二個實例 → 親眼看到限流失效　（配額 20，實測通過 40）
-- [ ] Stage 5　Redis + Lua 分散式限流
+- [x] Stage 5　Redis + Lua 分散式限流　（同一實驗 40 → 21）
 - [ ] Stage 6　限流上移到 api-gateway
 - [ ] Stage 7　Eureka 服務發現
 - [ ] Stage 8　服務間呼叫 + 熔斷
@@ -223,6 +223,26 @@ Stage 5 接上 Redis 之後，同樣的指令要回到 **通過 20 次**。
 ### 要寫的
 - `resources/scripts/token_bucket.lua` — 在 Redis 裡原子地完成「讀取 → 計算補充 → 扣減 → 寫回」
 - `ratelimit/RedisRateLimitFilter.java` — 用 `StringRedisTemplate` + `DefaultRedisScript` 執行
+
+### 實測結果　★ ADR-007 的驗收
+
+同一段指令、同樣兩個實例、配額同樣是 20：
+
+```
+Stage 4（記憶體）  通過 40 次
+Stage 5（Redis）   通過 21 次
+```
+
+21 而非 20，是因為整個實驗跑了 4 秒，期間補回約 1.3 個 token（每 3 秒 1 個）。
+平滑補充的正確行為，不是誤差。
+
+Redis 裡只有一份 hash —— 兩個 JVM 看的是同一個狀態：
+
+```
+HGETALL ratelimit:orders:203.0.113.99
+  tokens  0.2403...
+  ts      1791211135781
+```
 
 ### 驗收
 - 兩個實例同時跑，**總通過量回到單一上限**（跟 Stage 4 記下的數字對照）

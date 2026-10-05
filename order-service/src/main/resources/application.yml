@@ -53,7 +53,7 @@ management:
 ratelimit:
   orders:
     enabled: true
-    algorithm: token-bucket      # fixed-window | token-bucket
+    algorithm: redis-token-bucket      # fixed-window | token-bucket |redis-token-bucket
     fixed-window:
       limit: 20
       window: 1m

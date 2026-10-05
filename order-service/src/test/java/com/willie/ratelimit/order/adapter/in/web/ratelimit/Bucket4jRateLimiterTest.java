@@ -4,6 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.ActiveProfiles;
+import static org.hamcrest.Matchers.matchesRegex;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -50,7 +51,8 @@ public class Bucket4jRateLimiterTest {
 			}
 			performIp("203.0.113.1")
 				.andExpect(status().isTooManyRequests())
-				.andExpect(header().exists("Retry-After"))
+				// 1~2 位數的正整數：單位誤用毫秒的話會是 4 位數以上（例如 3000、2118）
+				.andExpect(header().string("Retry-After", matchesRegex("^[1-9][0-9]?$")))
 				.andExpect(jsonPath("$.errorCode").value("too_many_requests"));
 	}
 	
